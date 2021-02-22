@@ -16,3 +16,8 @@ To add the package to your project, read the [install](https://pub.dev/packages/
 
 ## Example
 
+A simple graph, put into a circle-shaped Container could look something like this: 
+
+![alt text](https://raw.githubusercontent.com/herrytco/circlegraph/main/.assets/sample_graph_image.png "Example of a graph created with the Circlegraph package")
+
+To achieve a similar result, have a look at the [Example](https://pub.dev/packages/circlegraph/example) section. 
