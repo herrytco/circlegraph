@@ -1,3 +1,7 @@
+library circlegraph;
+
+export 'package:circlegraph/tree_node_data.dart';
+
 import 'package:circlegraph/graph_tooltip.dart';
 import 'package:circlegraph/tree_node_data.dart';
 import 'package:circlegraph/tree_node_view.dart';

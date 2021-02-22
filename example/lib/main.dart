@@ -1,6 +1,5 @@
-import 'package:circlegraph/circlegraph.dart';
-import 'package:circlegraph/tree_node_data.dart';
 import 'package:flutter/material.dart';
+import 'package:circlegraph/circlegraph.dart';
 
 void main() {
   runApp(MyApp());
@@ -88,18 +87,23 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          color: color3,
+        ),
         onPressed: onAdd,
+        backgroundColor: color2,
       ),
       body: Center(
         child: Container(
-          padding: EdgeInsets.all(160),
+          padding: EdgeInsets.all(100),
           decoration: BoxDecoration(
             color: color1,
             shape: BoxShape.circle,
           ),
           child: CircleTree(
             root: _nodeWithIndex(0),
+            radius: 50,
             children: [
               for (int i = 0; i < numberOfChildren; i++) _nodeWithIndex(i + 1),
             ],

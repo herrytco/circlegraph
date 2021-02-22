@@ -1,4 +1,4 @@
-import 'package:circlegraph/circle_tree.dart';
+import 'package:circlegraph/circlegraph.dart';
 import 'package:circlegraph/tree_edge.dart';
 import 'package:circlegraph/tree_node_data.dart';
 import 'package:flutter/material.dart';
