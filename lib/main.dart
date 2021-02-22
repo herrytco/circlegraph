@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Tree(
+        child: CircleTree(
           root: rootNode,
           children: [
             _nodeWithIndex(0),

@@ -1,29 +1,36 @@
 import 'package:circlegraph/tree_node_data.dart';
 import 'package:circlegraph/tree_node_view.dart';
+import 'package:circlegraph/tree_painter.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:vector_math/vector_math.dart' as vm;
 
-class Tree extends StatefulWidget {
+class CircleTree extends StatefulWidget {
   final TreeNodeData root;
   final List<TreeNodeData> children;
 
   final double radius;
   final Color backgroundColor;
 
-  Tree(
+  CircleTree(
       {@required this.root,
       this.children = const [],
       this.radius = 200,
-      this.backgroundColor = Colors.red});
+      this.backgroundColor = Colors.red}) {
+    // add an edge from root to each child
+    for (TreeNodeData child in children) root.addEdgeTo(child);
+  }
 
   @override
-  _TreeState createState() => _TreeState();
+  _CircleTreeState createState() => _CircleTreeState();
 }
 
-class _TreeState extends State<Tree> {
+class _CircleTreeState extends State<CircleTree> {
   double _width;
   double _height;
+
+  double _nodeWidth;
+  double _nodeHeight;
 
   TreeNodeView _root;
   List<TreeNodeView> _realizedNodes = [];
@@ -32,8 +39,13 @@ class _TreeState extends State<Tree> {
   void initState() {
     super.initState();
 
-    double lastNodeHeight = -1;
-    double lastNodeWidth = -1;
+    _calcTreeWidgetSize();
+    _calcNodePositions();
+  }
+
+  void _calcTreeWidgetSize() {
+    double lastNodeHeight = -1, lastNodeWidth = -1;
+
     for (TreeNodeData node in widget.children) {
       if (lastNodeWidth == -1) {
         lastNodeWidth = node.width;
@@ -48,25 +60,55 @@ class _TreeState extends State<Tree> {
       case 0:
         _width = widget.root.width;
         _height = widget.root.height;
-
-        _root = TreeNodeView(data: widget.root, x: 0, y: 0);
         break;
       case 1:
         _width = widget.root.width + widget.radius + lastNodeWidth;
         _height = widget.root.height;
-
-        _root = TreeNodeView(data: widget.root, x: 0, y: 0);
-        _realizedNodes.add(
-          TreeNodeView(
-              data: widget.children[0], x: _width - lastNodeWidth, y: 0),
-        );
         break;
       default:
-        _width = widget.root.width + 2 * widget.radius + 2 * max(lastNodeWidth, lastNodeWidth);
-        _height = widget.root.height + 2 * widget.radius + 2 * max(lastNodeWidth, lastNodeWidth);
+        _width = widget.root.width +
+            2 * widget.radius +
+            2 * max(lastNodeWidth, lastNodeWidth);
+        _height = widget.root.height +
+            2 * widget.radius +
+            2 * max(lastNodeWidth, lastNodeWidth);
+        break;
+    }
+
+    _nodeWidth = lastNodeWidth;
+    _nodeHeight = lastNodeHeight;
+  }
+
+  void _calcNodePositions() {
+    switch (widget.children.length) {
+      case 0:
+        _width = widget.root.width;
+        _height = widget.root.height;
+        break;
+      case 1:
+        _width = widget.root.width + widget.radius + _nodeWidth;
+        _height = widget.root.height;
+
+        _root = TreeNodeView(data: widget.root, x: 0, y: 0);
+
+        TreeNodeView childRealization = TreeNodeView(
+          data: widget.children[0],
+          x: _width - _nodeWidth,
+          y: 0,
+        );
+
+        _realizedNodes.add(childRealization);
+        widget.children[0].realization = childRealization;
+        break;
+      default:
+        _width = widget.root.width +
+            2 * widget.radius +
+            2 * max(_nodeWidth, _nodeHeight);
+        _height = widget.root.height +
+            2 * widget.radius +
+            2 * max(_nodeWidth, _nodeHeight);
 
         double angleSteps = 360 / widget.children.length;
-
         double centerX = _width / 2, centerY = _height / 2;
 
         _root = TreeNodeView(
@@ -79,7 +121,8 @@ class _TreeState extends State<Tree> {
           TreeNodeData child = widget.children[i];
           double angle = angleSteps * i;
 
-          double nodeX = centerX + widget.radius + _root.data.width / 2 + child.width / 2;
+          double nodeX =
+              centerX + widget.radius + _root.data.width / 2 + child.width / 2;
           double nodeY = centerY;
 
           // translate rotation origin to (0/0)
@@ -100,17 +143,20 @@ class _TreeState extends State<Tree> {
           nodeX += centerX;
           nodeY += centerY;
 
-          _realizedNodes.add(
-            TreeNodeView(
-              data: child,
-              x: nodeX,
-              y: nodeY,
-            ),
+          TreeNodeView childRealization = TreeNodeView(
+            data: child,
+            x: nodeX,
+            y: nodeY,
           );
+
+          _realizedNodes.add(childRealization);
+          child.realization = childRealization;
         }
 
         break;
     }
+
+    widget.root.realization = _root;
   }
 
   @override
@@ -119,11 +165,14 @@ class _TreeState extends State<Tree> {
       width: _width,
       height: _height,
       color: widget.backgroundColor,
-      child: Stack(
-        children: [
-          _root,
-          for (TreeNodeView view in _realizedNodes) view,
-        ],
+      child: CustomPaint(
+        painter: TreePainter(tree: widget),
+        child: Stack(
+          children: [
+            _root,
+            for (TreeNodeView view in _realizedNodes) view,
+          ],
+        ),
       ),
     );
   }
