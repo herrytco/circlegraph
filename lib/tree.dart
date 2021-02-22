@@ -1,3 +1,4 @@
+import 'package:circlegraph/graph_tooltip.dart';
 import 'package:circlegraph/tree_node_data.dart';
 import 'package:circlegraph/tree_node_view.dart';
 import 'package:circlegraph/tree_painter.dart';
@@ -11,20 +12,27 @@ class CircleTree extends StatefulWidget {
 
   final double radius;
   final Color backgroundColor;
+  final Color edgeColor;
+
+  final EdgeInsets padding;
 
   final Widget Function(TreeNodeData node, int data) tooltipBuilder;
-
-  void test() {}
 
   CircleTree({
     @required this.root,
     this.children = const [],
     this.radius = 200,
-    this.backgroundColor = Colors.red,
+    this.backgroundColor = Colors.blue,
+    this.edgeColor = Colors.black,
+    this.padding = EdgeInsets.zero,
     this.tooltipBuilder,
   }) {
     // add an edge from root to each child
-    for (TreeNodeData child in children) root.addEdgeTo(child);
+    for (TreeNodeData child in children)
+      root.addEdgeTo(
+        child,
+        edgeColor: edgeColor,
+      );
   }
 
   @override
@@ -43,11 +51,19 @@ class _CircleTreeState extends State<CircleTree> {
 
   TreeNodeData _currentlyHoveredNode;
 
+  TreeNodeData getCurrentlyHoveredNode() => _currentlyHoveredNode;
+
+  void _resetMouseOver() {
+    setState(() {
+      _currentlyHoveredNode = null;
+    });
+  }
+
   void reportMouseOver(TreeNodeData node) {
     if (node != _currentlyHoveredNode) {
-      _currentlyHoveredNode = node;
-
-      print("nice mouseover over $node");
+      setState(() {
+        _currentlyHoveredNode = node;
+      });
     }
   }
 
@@ -195,23 +211,47 @@ class _CircleTreeState extends State<CircleTree> {
 
   @override
   Widget build(BuildContext context) {
-    print("build tree with root and ${widget.children.length} children.");
-
     _resetData();
     _calcTreeWidgetSize();
     _calcNodePositions();
 
     return Container(
-      width: _width,
-      height: _height,
+      width: _width + widget.padding.left + widget.padding.right,
+      height: _height + widget.padding.top + widget.padding.bottom,
       color: widget.backgroundColor,
-      child: CustomPaint(
-        painter: TreePainter(tree: widget),
-        child: Stack(
-          children: [
-            _root,
-            for (TreeNodeView view in _realizedNodes) view,
-          ],
+      child: Align(
+        alignment: Alignment.center,
+        child: Container(
+          height: _height,
+          width: _width,
+          color: widget.backgroundColor,
+          // child: Text("Hm"),
+          child: Stack(
+            children: [
+              Listener(
+                onPointerHover: (event) => _resetMouseOver(),
+                child: Container(
+                  constraints: BoxConstraints.expand(),
+                  child: CustomPaint(
+                    painter: TreePainter(tree: widget),
+                  ),
+                ),
+              ),
+              _root,
+              for (TreeNodeView view in _realizedNodes) view,
+              _currentlyHoveredNode != null
+                  ? GraphTooltip(
+                      getCurrentlyHoveredNode,
+                      widget.tooltipBuilder != null
+                          ? widget.tooltipBuilder(
+                              _currentlyHoveredNode, _currentlyHoveredNode.data)
+                          : SizedBox(),
+                      _width,
+                      _height,
+                    )
+                  : SizedBox(),
+            ],
+          ),
         ),
       ),
     );

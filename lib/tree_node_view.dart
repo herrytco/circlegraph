@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 
 class TreeNodeView extends StatefulWidget {
   final TreeNodeData data;
-
   final CircleTree containingTree;
 
   final double x;
