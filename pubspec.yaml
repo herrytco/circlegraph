@@ -1,6 +1,6 @@
 name: circlegraph
 description: Create graphs with a root node and several child nodes.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/herrytco/
 
 environment:
