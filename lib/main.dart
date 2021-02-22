@@ -28,18 +28,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  TreeNodeData rootNode = TreeNodeData<int>(
-    child: Text("root"),
-    data: 0,
-    onNodeClick: (TreeNodeData node, int data) =>
-        print("clicked on node $data"),
-  );
+  int numberOfChildren = 0;
+
+  void onAdd() {
+    setState(() {
+      numberOfChildren += 1;
+    });
+  }
 
   TreeNodeData _nodeWithIndex(int i) {
     return TreeNodeData<int>(
       child: Text("child $i"),
       data: i,
       onNodeClick: _onNodeClick,
+    );
+  }
+
+  Widget buildTooltip(TreeNodeData node, int data) {
+    return Container(
+      width: 200,
+      height: 200,
+      color: Colors.green,
+      child: Text("Hovering over node $data"),
     );
   }
 
@@ -50,22 +60,15 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: onAdd,
+      ),
       body: Center(
         child: CircleTree(
-          root: rootNode,
+          root: _nodeWithIndex(0),
           children: [
-            _nodeWithIndex(1),
-            _nodeWithIndex(2),
-            _nodeWithIndex(3),
-            _nodeWithIndex(4),
-            _nodeWithIndex(5),
-            _nodeWithIndex(6),
-            _nodeWithIndex(7),
-            _nodeWithIndex(8),
-            _nodeWithIndex(9),
-            // _nodeWithIndex(10),
-            // _nodeWithIndex(11),
-            // _nodeWithIndex(12),
+            for (int i = 0; i < numberOfChildren; i++) _nodeWithIndex(i + 1),
           ],
         ),
       ),

@@ -25,9 +25,9 @@ class TreePainter extends CustomPainter {
       // draw line from node to connectedNode
       TreeNodeData connectedNode = edge.toNode;
 
-      Offset pNode = Offset(node.realization.x, node.realization.y);
+      Offset pNode = Offset(node.position.x, node.position.y);
       Offset pConnectedNode =
-          Offset(connectedNode.realization.x, connectedNode.realization.y);
+          Offset(connectedNode.position.x, connectedNode.position.y);
 
       Paint paint = Paint()
         ..color = edge.edgeColor
