@@ -28,10 +28,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  TreeNodeData rootNode = TreeNodeData(child: Text("root"));
+  TreeNodeData rootNode = TreeNodeData<int>(
+    child: Text("root"),
+    data: 0,
+    onNodeClick: (TreeNodeData node, int data) =>
+        print("clicked on node $data"),
+  );
 
   TreeNodeData _nodeWithIndex(int i) {
-    return TreeNodeData(child: Text("child $i"));
+    return TreeNodeData<int>(
+      child: Text("child $i"),
+      data: i,
+      onNodeClick: _onNodeClick,
+    );
+  }
+
+  void _onNodeClick(TreeNodeData node, int data) {
+    print("clicked on node $data");
   }
 
   @override
@@ -41,7 +54,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: CircleTree(
           root: rootNode,
           children: [
-            _nodeWithIndex(0),
             _nodeWithIndex(1),
             _nodeWithIndex(2),
             _nodeWithIndex(3),
@@ -50,9 +62,10 @@ class _MyHomePageState extends State<MyHomePage> {
             _nodeWithIndex(6),
             _nodeWithIndex(7),
             _nodeWithIndex(8),
-            // _nodeWithIndex(9),
+            _nodeWithIndex(9),
             // _nodeWithIndex(10),
             // _nodeWithIndex(11),
+            // _nodeWithIndex(12),
           ],
         ),
       ),

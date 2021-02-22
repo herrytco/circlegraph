@@ -1,12 +1,12 @@
 import 'package:circlegraph/tree.dart';
+import 'package:circlegraph/tree_edge.dart';
 import 'package:circlegraph/tree_node_data.dart';
 import 'package:flutter/material.dart';
 
 class TreePainter extends CustomPainter {
   final CircleTree tree;
-  final double strokeWidth;
 
-  TreePainter({this.tree, this.strokeWidth = 1});
+  TreePainter({this.tree});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -21,16 +21,17 @@ class TreePainter extends CustomPainter {
   }
 
   void _paintNode(Canvas canvas, TreeNodeData node) {
-    for (TreeNodeData connectedNode in node.connectedNodes) {
+    for (TreeEdge edge in node.connectedNodes) {
       // draw line from node to connectedNode
+      TreeNodeData connectedNode = edge.toNode;
 
       Offset pNode = Offset(node.realization.x, node.realization.y);
       Offset pConnectedNode =
           Offset(connectedNode.realization.x, connectedNode.realization.y);
 
       Paint paint = Paint()
-        ..color = Colors.black
-        ..strokeWidth = strokeWidth;
+        ..color = edge.edgeColor
+        ..strokeWidth = edge.strokeWidth;
 
       canvas.drawLine(pNode, pConnectedNode, paint);
     }

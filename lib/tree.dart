@@ -43,6 +43,10 @@ class _CircleTreeState extends State<CircleTree> {
     _calcNodePositions();
   }
 
+  ///
+  /// calculate the size of the container containing the graph. it uses the
+  /// width of root and child-nodes as well as the radius the circle should have
+  ///
   void _calcTreeWidgetSize() {
     double lastNodeHeight = -1, lastNodeWidth = -1;
 
@@ -79,6 +83,9 @@ class _CircleTreeState extends State<CircleTree> {
     _nodeHeight = lastNodeHeight;
   }
 
+  ///
+  /// calculate the effective position each node has in the coordinate system
+  ///
   void _calcNodePositions() {
     switch (widget.children.length) {
       case 0:
