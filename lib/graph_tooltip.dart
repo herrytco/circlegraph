@@ -12,6 +12,11 @@ class GraphTooltip<T> extends StatelessWidget {
   GraphTooltip(
       this.parent, this.tooltip, this.treeBoxHeight, this.treeBoxWidth);
 
+  ///
+  /// Compare the draw position to the size of the container containing the
+  /// graph and determine in which quadrant the node is located. This will
+  /// control in which orientation the tooltip will be drawn later.
+  ///
   DrawMode determineDrawmode(TreeNodeData node) {
     if (node.position.x < treeBoxWidth / 2 &&
         node.position.y < treeBoxHeight / 2) return DrawMode.TOPLEFT;
@@ -25,48 +30,43 @@ class GraphTooltip<T> extends StatelessWidget {
     throw Exception("Something impossible just happened...");
   }
 
-  Positioned positionedForTooltip(TreeNodeData node, Widget child) {
-    DrawMode mode = determineDrawmode(node);
-
-    switch (mode) {
-      case DrawMode.TOPLEFT:
-        return Positioned(
-          top: node.position.y,
-          left: node.position.x,
-          child: child,
-        );
-      case DrawMode.TOPRIGHT:
-        return Positioned(
-          top: node.position.y,
-          right: treeBoxWidth - node.position.x + node.width / 2,
-          child: child,
-        );
-      case DrawMode.BOTTOMLEFT:
-        return Positioned(
-          bottom: treeBoxHeight - node.position.y - node.height,
-          left: node.position.x,
-          child: child,
-        );
-      case DrawMode.BOTTOMRIGHT:
-        return Positioned(
-          bottom: treeBoxHeight - node.position.y - node.height,
-          right: treeBoxWidth - node.position.x + node.width / 2,
-          child: child,
-        );
-      default:
-        throw Exception("enum was not covered fully...");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     TreeNodeData hostingNode = parent();
 
-    return hostingNode != null
-        ? positionedForTooltip(
-            hostingNode,
-            tooltip,
-          )
-        : SizedBox();
+    if (hostingNode != null) {
+      switch (determineDrawmode(hostingNode)) {
+        case DrawMode.TOPLEFT:
+          return Positioned(
+            top: hostingNode.position.y,
+            left: hostingNode.position.x,
+            child: tooltip,
+          );
+        case DrawMode.TOPRIGHT:
+          return Positioned(
+            top: hostingNode.position.y,
+            right:
+                treeBoxWidth - hostingNode.position.x + hostingNode.width / 2,
+            child: tooltip,
+          );
+        case DrawMode.BOTTOMLEFT:
+          return Positioned(
+            bottom: treeBoxHeight - hostingNode.position.y - hostingNode.height,
+            left: hostingNode.position.x,
+            child: tooltip,
+          );
+        case DrawMode.BOTTOMRIGHT:
+          return Positioned(
+            bottom: treeBoxHeight - hostingNode.position.y - hostingNode.height,
+            right:
+                treeBoxWidth - hostingNode.position.x + hostingNode.width / 2,
+            child: tooltip,
+          );
+        default:
+          throw Exception("enum was not covered fully...");
+      }
+    }
+
+    return SizedBox();
   }
 }

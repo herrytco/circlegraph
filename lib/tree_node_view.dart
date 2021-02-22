@@ -1,5 +1,5 @@
 import 'package:circlegraph/point.dart';
-import 'package:circlegraph/tree.dart';
+import 'package:circlegraph/circle_tree.dart';
 import 'package:circlegraph/tree_node_data.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

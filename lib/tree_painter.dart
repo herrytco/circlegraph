@@ -1,4 +1,4 @@
-import 'package:circlegraph/tree.dart';
+import 'package:circlegraph/circle_tree.dart';
 import 'package:circlegraph/tree_edge.dart';
 import 'package:circlegraph/tree_node_data.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +20,10 @@ class TreePainter extends CustomPainter {
     }
   }
 
+  ///
+  /// Paint a single node and all connected nodes with the visual settings in
+  /// the node edges.
+  ///
   void _paintNode(Canvas canvas, TreeNodeData node) {
     for (TreeEdge edge in node.connectedNodes) {
       // draw line from node to connectedNode

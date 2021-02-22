@@ -22,8 +22,9 @@ class CircleTree extends StatefulWidget {
     @required this.root,
     this.children = const [],
     this.radius = 200,
-    this.backgroundColor = Colors.blue,
-    this.edgeColor = Colors.black,
+    this.backgroundColor =
+        const Color.fromRGBO(154, 212, 214, 1), // powder blue
+    this.edgeColor = const Color.fromRGBO(139, 30, 63, 1), // claret (red-ish),
     this.padding = EdgeInsets.zero,
     this.tooltipBuilder,
   }) {
@@ -53,13 +54,21 @@ class _CircleTreeState extends State<CircleTree> {
 
   TreeNodeData getCurrentlyHoveredNode() => _currentlyHoveredNode;
 
+  ///
+  /// Called when the background is hovered. Resets the currently hovered node
+  /// and discards the tooltip in the process.
+  ///
   void _resetMouseOver() {
     setState(() {
       _currentlyHoveredNode = null;
     });
   }
 
-  void reportMouseOver(TreeNodeData node) {
+  ///
+  /// called when the mouse is currently on top of a node. Sets the node as the
+  /// currently hovered node which will display the tooltip.
+  ///
+  void _reportMouseOver(TreeNodeData node) {
     if (node != _currentlyHoveredNode) {
       setState(() {
         _currentlyHoveredNode = node;
@@ -67,6 +76,10 @@ class _CircleTreeState extends State<CircleTree> {
     }
   }
 
+  ///
+  /// clears the inputdata from realized data and removes edges as they get recomputed
+  /// with the latest data
+  ///
   void _resetData() {
     _realizedNodes = [];
     _root = null;
@@ -133,7 +146,7 @@ class _CircleTreeState extends State<CircleTree> {
           x: widget.root.width / 2,
           y: widget.root.height / 2,
           containingTree: widget,
-          onHover: reportMouseOver,
+          onHover: _reportMouseOver,
         );
 
         break;
@@ -143,7 +156,7 @@ class _CircleTreeState extends State<CircleTree> {
           x: widget.root.width / 2,
           y: widget.root.height / 2,
           containingTree: widget,
-          onHover: reportMouseOver,
+          onHover: _reportMouseOver,
         );
 
         TreeNodeView childRealization = TreeNodeView(
@@ -151,7 +164,7 @@ class _CircleTreeState extends State<CircleTree> {
           x: _width - _nodeWidth / 2,
           y: _nodeHeight / 2,
           containingTree: widget,
-          onHover: reportMouseOver,
+          onHover: _reportMouseOver,
         );
 
         _realizedNodes.add(childRealization);
@@ -165,7 +178,7 @@ class _CircleTreeState extends State<CircleTree> {
           x: centerX,
           y: centerY,
           containingTree: widget,
-          onHover: reportMouseOver,
+          onHover: _reportMouseOver,
         );
 
         for (int i = 0; i < widget.children.length; i++) {
@@ -199,7 +212,7 @@ class _CircleTreeState extends State<CircleTree> {
             x: nodeX,
             y: nodeY,
             containingTree: widget,
-            onHover: reportMouseOver,
+            onHover: _reportMouseOver,
           );
 
           _realizedNodes.add(childRealization);
@@ -225,7 +238,6 @@ class _CircleTreeState extends State<CircleTree> {
           height: _height,
           width: _width,
           color: widget.backgroundColor,
-          // child: Text("Hm"),
           child: Stack(
             children: [
               Listener(

@@ -1,4 +1,4 @@
-import 'package:circlegraph/tree.dart';
+import 'package:circlegraph/circle_tree.dart';
 import 'package:circlegraph/tree_node_data.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +36,10 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  ///
+  /// generate a simple node that holds an integer with a text inside that
+  /// contains its index
+  ///
   TreeNodeData _nodeWithIndex(int i) {
     return TreeNodeData<int>(
         child: Text(
@@ -47,6 +51,9 @@ class _MyHomePageState extends State<MyHomePage> {
         color: color2);
   }
 
+  ///
+  /// Build the tooltip based on the node that is currently hovered
+  ///
   Widget buildTooltip(TreeNodeData node, int data) {
     return Container(
       padding: EdgeInsets.all(10),
@@ -63,29 +70,19 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  ///
+  /// callback when a node is clicked
+  ///
   void _onNodeClick(TreeNodeData node, int data) {
     print("clicked on node $data");
   }
 
-  _hexStringToColor(String hexColor) {
-    hexColor = hexColor.toUpperCase().replaceAll("#", "");
-    if (hexColor.length == 6) {
-      hexColor = "FF" + hexColor;
-    }
-    return Color(int.parse(hexColor, radix: 16));
-  }
-
-  String _color1String = "9ad4d6"; // powder blue
-  String _color2String = "8b1e3f"; // claret (red-ish)
-  String _color3String = "f0c987"; // gold crayola (yellow-ish)
-  String _color4String = "47AAAE"; // verdigris
-  String _color5String = "102542"; // oxford blue
-
-  Color get color1 => _hexStringToColor(_color1String);
-  Color get color2 => _hexStringToColor(_color2String);
-  Color get color3 => _hexStringToColor(_color3String);
-  Color get color4 => _hexStringToColor(_color4String);
-  Color get color5 => _hexStringToColor(_color5String);
+  Color get color1 => Color.fromRGBO(154, 212, 214, 1); // powder blue
+  Color get color2 => Color.fromRGBO(139, 30, 63, 1); // claret (red-ish)
+  Color get color3 =>
+      Color.fromRGBO(240, 201, 135, 1); // gold crayola (yellow-ish)
+  Color get color4 => Color.fromRGBO(71, 170, 174, 1); // verdigris
+  Color get color5 => Color.fromRGBO(16, 37, 66, 1); // oxford blue
 
   @override
   Widget build(BuildContext context) {
@@ -107,8 +104,6 @@ class _MyHomePageState extends State<MyHomePage> {
               for (int i = 0; i < numberOfChildren; i++) _nodeWithIndex(i + 1),
             ],
             tooltipBuilder: buildTooltip,
-            backgroundColor: color1,
-            edgeColor: color2,
           ),
         ),
       ),

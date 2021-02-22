@@ -20,6 +20,9 @@ class TreeNodeData<T> {
     if (onNodeClick != null) onNodeClick(this, data);
   }
 
+  ///
+  /// Add an outgoing edge from this node to toNode with the given visual settings.
+  ///
   void addEdgeTo(
     TreeNodeData toNode, {
     double strokeWidth = 1,
@@ -37,6 +40,9 @@ class TreeNodeData<T> {
     );
   }
 
+  ///
+  /// Clears all outgoing edges from this node.
+  ///
   void clearEdges() => connectedNodes.clear();
 
   TreeNodeData({
