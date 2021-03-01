@@ -113,7 +113,7 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
   ///
   Color get color5 => Color.fromRGBO(16, 37, 66, 1);
 
-  CircleTree constructTree(int numberOfChildren) {
+  CircleTree constructTree(int numberOfChildren, {color = Colors.blue}) {
     return CircleTree(
       root: _nodeWithIndex(0),
       radius: 50,
@@ -122,6 +122,7 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
       ],
       tooltipBuilder: buildTooltip,
       circlify: true,
+      backgroundColor: color,
     );
   }
 
@@ -158,7 +159,13 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
               [
                 constructTree(numberOfChildren+1),
                 constructTree(numberOfChildren),
-                constructTree(numberOfChildren+2),
+                constructTree(numberOfChildren, color: Colors.amber),
+                constructTree(numberOfChildren+3, color: Colors.pink),
+                constructTree(numberOfChildren+6, color: Colors.lime),
+                constructTree(numberOfChildren, color: Colors.indigo),
+                constructTree(numberOfChildren, color: Colors.orange),
+                constructTree(numberOfChildren, color: Colors.teal),
+                constructTree(numberOfChildren, color: Colors.tealAccent),
               ],
             ),
           ),

@@ -1,8 +1,8 @@
-import 'package:circlegraph/circlegraph.dart';
+import 'package:circlegraph/bubble/circle_tree_view.dart';
 
 class BubbleEdge {
-  final CircleTree c1;
-  final CircleTree c2;
+  final CircleTreeView c1;
+  final CircleTreeView c2;
 
   BubbleEdge(this.c1, this.c2);
 }

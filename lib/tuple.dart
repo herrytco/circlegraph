@@ -6,9 +6,9 @@ class Tuple {
 
   Tuple(this.x, this.y);
 
-  double get largestElement {
-    return max(x, y);
-  }
+  double get largestElement => max(x, y);
+
+  double get magnitude => sqrt(pow(x, 2) + pow(y, 2));
 
   @override
   String toString() {
