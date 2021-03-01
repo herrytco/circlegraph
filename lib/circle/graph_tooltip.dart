@@ -1,4 +1,4 @@
-import 'package:circlegraph/tree_node_data.dart';
+import 'package:circlegraph/circle/tree_node_data.dart';
 import 'package:flutter/material.dart';
 
 enum DrawMode { TOPRIGHT, TOPLEFT, BOTTOMRIGHT, BOTTOMLEFT }
@@ -18,14 +18,14 @@ class GraphTooltip<T> extends StatelessWidget {
   /// control in which orientation the tooltip will be drawn later.
   ///
   DrawMode determineDrawmode(TreeNodeData node) {
-    if (node.position.x < treeBoxWidth / 2 &&
-        node.position.y < treeBoxHeight / 2) return DrawMode.TOPLEFT;
-    if (node.position.x >= treeBoxWidth / 2 &&
-        node.position.y < treeBoxHeight / 2) return DrawMode.TOPRIGHT;
-    if (node.position.x < treeBoxWidth / 2 &&
-        node.position.y >= treeBoxHeight / 2) return DrawMode.BOTTOMLEFT;
-    if (node.position.x >= treeBoxWidth / 2 &&
-        node.position.y >= treeBoxHeight / 2) return DrawMode.BOTTOMRIGHT;
+    if (node.position.x <= treeBoxWidth / 2 &&
+        node.position.y <= treeBoxHeight / 2) return DrawMode.TOPLEFT;
+    if (node.position.x > treeBoxWidth / 2 &&
+        node.position.y <= treeBoxHeight / 2) return DrawMode.TOPRIGHT;
+    if (node.position.x <= treeBoxWidth / 2 &&
+        node.position.y > treeBoxHeight / 2) return DrawMode.BOTTOMLEFT;
+    if (node.position.x > treeBoxWidth / 2 &&
+        node.position.y > treeBoxHeight / 2) return DrawMode.BOTTOMRIGHT;
 
     throw Exception("Something impossible just happened...");
   }
@@ -35,7 +35,9 @@ class GraphTooltip<T> extends StatelessWidget {
     TreeNodeData hostingNode = parent();
 
     if (hostingNode != null) {
-      switch (determineDrawmode(hostingNode)) {
+      DrawMode mode = determineDrawmode(hostingNode);
+
+      switch (mode) {
         case DrawMode.TOPLEFT:
           return Positioned(
             top: hostingNode.position.y,
@@ -45,21 +47,19 @@ class GraphTooltip<T> extends StatelessWidget {
         case DrawMode.TOPRIGHT:
           return Positioned(
             top: hostingNode.position.y,
-            right:
-                treeBoxWidth - hostingNode.position.x + hostingNode.width / 2,
+            right: treeBoxWidth - hostingNode.position.x,
             child: tooltip,
           );
         case DrawMode.BOTTOMLEFT:
           return Positioned(
-            bottom: treeBoxHeight - hostingNode.position.y - hostingNode.height,
+            bottom: treeBoxHeight - hostingNode.position.y,
             left: hostingNode.position.x,
             child: tooltip,
           );
         case DrawMode.BOTTOMRIGHT:
           return Positioned(
-            bottom: treeBoxHeight - hostingNode.position.y - hostingNode.height,
-            right:
-                treeBoxWidth - hostingNode.position.x + hostingNode.width / 2,
+            bottom: treeBoxHeight - hostingNode.position.y,
+            right: treeBoxWidth - hostingNode.position.x,
             child: tooltip,
           );
         default:

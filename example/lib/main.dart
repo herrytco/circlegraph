@@ -9,30 +9,42 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Circlegraph Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: CircleGraphDemo(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
+class CircleGraphDemo extends StatefulWidget {
+  CircleGraphDemo({Key key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _CircleGraphDemoState createState() => _CircleGraphDemoState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int numberOfChildren = 5;
+class _CircleGraphDemoState extends State<CircleGraphDemo> {
+  int numberOfChildren = 0;
 
+  ///
+  /// increase the number of child-nodes in the graph by 1
+  /// 
   void onAdd() {
     setState(() {
-      numberOfChildren += 1;
+      numberOfChildren++;
     });
+  }
+
+  ///
+  /// decrease the number of child-nodes in the graph by 1
+  ///
+  void onRemove() {
+    if (numberOfChildren > 0)
+      setState(() {
+        numberOfChildren--;
+      });
   }
 
   ///
@@ -76,40 +88,76 @@ class _MyHomePageState extends State<MyHomePage> {
     print("clicked on node $data");
   }
 
-  Color get color1 => Color.fromRGBO(154, 212, 214, 1); // powder blue
-  Color get color2 => Color.fromRGBO(139, 30, 63, 1); // claret (red-ish)
-  Color get color3 =>
-      Color.fromRGBO(240, 201, 135, 1); // gold crayola (yellow-ish)
-  Color get color4 => Color.fromRGBO(71, 170, 174, 1); // verdigris
-  Color get color5 => Color.fromRGBO(16, 37, 66, 1); // oxford blue
+  ///
+  /// powder blue
+  ///
+  Color get color1 => Color.fromRGBO(154, 212, 214, 1);
+
+  ///
+  /// claret (red-ish)
+  ///
+  Color get color2 => Color.fromRGBO(139, 30, 63, 1);
+
+  ///
+  /// gold crayola (yellow-ish)
+  ///
+  Color get color3 => Color.fromRGBO(240, 201, 135, 1);
+
+  ///
+  /// verdigris
+  ///
+  Color get color4 => Color.fromRGBO(71, 170, 174, 1);
+
+  ///
+  /// oxford blue
+  ///
+  Color get color5 => Color.fromRGBO(16, 37, 66, 1);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.add,
-          color: color3,
-        ),
-        onPressed: onAdd,
-        backgroundColor: color2,
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            child: Icon(
+              Icons.remove,
+              color: color3,
+            ),
+            onPressed: onRemove,
+            backgroundColor: color2,
+          ),
+          SizedBox(width: 8),
+          FloatingActionButton(
+            child: Icon(
+              Icons.add,
+              color: color3,
+            ),
+            onPressed: onAdd,
+            backgroundColor: color2,
+          ),
+        ],
       ),
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.all(100),
-          decoration: BoxDecoration(
-            color: color1,
-            shape: BoxShape.circle,
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.center,
+            child: CircleTree(
+              root: _nodeWithIndex(0),
+              radius: 50,
+              children: [
+                for (int i = 0; i < numberOfChildren; i++)
+                  _nodeWithIndex(i + 1),
+              ],
+              tooltipBuilder: buildTooltip,
+              circlify: true,
+            ),
           ),
-          child: CircleTree(
-            root: _nodeWithIndex(0),
-            radius: 50,
-            children: [
-              for (int i = 0; i < numberOfChildren; i++) _nodeWithIndex(i + 1),
-            ],
-            tooltipBuilder: buildTooltip,
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Text("$numberOfChildren children per circle"),
           ),
-        ),
+        ],
       ),
     );
   }
