@@ -30,7 +30,7 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
 
   ///
   /// increase the number of child-nodes in the graph by 1
-  /// 
+  ///
   void onAdd() {
     setState(() {
       numberOfChildren++;
@@ -113,6 +113,18 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
   ///
   Color get color5 => Color.fromRGBO(16, 37, 66, 1);
 
+  CircleTree constructTree(int numberOfChildren) {
+    return CircleTree(
+      root: _nodeWithIndex(0),
+      radius: 50,
+      children: [
+        for (int i = 0; i < numberOfChildren; i++) _nodeWithIndex(i + 1),
+      ],
+      tooltipBuilder: buildTooltip,
+      circlify: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,15 +154,12 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
         children: [
           Align(
             alignment: Alignment.center,
-            child: CircleTree(
-              root: _nodeWithIndex(0),
-              radius: 50,
-              children: [
-                for (int i = 0; i < numberOfChildren; i++)
-                  _nodeWithIndex(i + 1),
+            child: BubbleGraph(
+              [
+                constructTree(numberOfChildren+1),
+                constructTree(numberOfChildren),
+                constructTree(numberOfChildren+2),
               ],
-              tooltipBuilder: buildTooltip,
-              circlify: true,
             ),
           ),
           Align(

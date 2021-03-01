@@ -1,6 +1,7 @@
 library circlegraph;
 
 export 'package:circlegraph/circle/tree_node_data.dart';
+export 'package:circlegraph/bubble/bubblegraph.dart';
 
 import 'package:circlegraph/circle/graph_tooltip.dart';
 import 'package:circlegraph/tuple.dart';
