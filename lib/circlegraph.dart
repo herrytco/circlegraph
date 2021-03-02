@@ -12,15 +12,43 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:vector_math/vector_math.dart' as vm;
 
+///
+/// A tree with one node in the center and a number of nodes placed around it
+/// 
 class CircleTree extends StatefulWidget {
+  ///
+  /// Central node, has a connection to each node specified in children
+  /// 
   final TreeNodeData root;
+
+  ///
+  /// Nodes placed around the central rootnode
+  /// 
   final List<TreeNodeData> children;
 
+  ///
+  /// distance between root and child nodes
+  /// 
   final double radius;
+
+  ///
+  /// background color of the graph including padding
+  /// 
   final Color backgroundColor;
+
+  ///
+  /// color of the lines between the nodes
+  /// 
   final Color edgeColor;
 
+  ///
+  /// space between the graph and the edge of the containing box
+  /// 
   final EdgeInsets padding;
+
+  ///
+  /// should the graph placed inside of an actual circle?
+  /// 
   final bool circlify;
 
   ///
@@ -106,6 +134,9 @@ class CircleTree extends StatefulWidget {
     return xPadding + sizeWithoutPadding;
   }
 
+  ///
+  /// builds the tooltip widget at [node]
+  /// 
   final Widget Function(TreeNodeData node, int data) tooltipBuilder;
 
   CircleTree({

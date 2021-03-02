@@ -7,14 +7,33 @@ import 'package:circlegraph/data_stack.dart';
 import 'package:circlegraph/tuple.dart';
 import 'package:flutter/material.dart';
 
+///
+/// Places a number of CircleGraphs organically next to each other
+///
 class BubbleGraph extends StatefulWidget {
   @override
   _BubbleGraphState createState() => _BubbleGraphState();
 
+  ///
+  /// graphs to draw
+  ///
   final List<CircleTree> circleGraphs;
+
+  ///
+  /// background color of the box containing the graph
+  ///
   final Color backgroundColor;
+
+  ///
+  /// empty space from the edge of the widget to the start of the actual
+  /// circles
+  ///
   final EdgeInsets padding;
 
+  ///
+  /// Creates a new bubblegraph containing [circleGraphs] inside. The dimensions
+  /// of the widget are constant.
+  ///
   BubbleGraph(
     this.circleGraphs, {
     this.backgroundColor,

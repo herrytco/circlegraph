@@ -62,7 +62,7 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
       ),
       data: i,
       onNodeClick: _onNodeClick,
-      color: ColorPicker.color2,
+      backgroundColor: ColorPicker.color2,
     );
   }
 
