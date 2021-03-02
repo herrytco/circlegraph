@@ -1,5 +1,5 @@
-import 'package:circlegraph/point.dart';
-import 'package:circlegraph/tree_edge.dart';
+import 'package:circlegraph/tuple.dart';
+import 'package:circlegraph/circle/tree_edge.dart';
 import 'package:flutter/material.dart';
 
 class TreeNodeData<T> {
@@ -14,7 +14,7 @@ class TreeNodeData<T> {
 
   final Function(TreeNodeData, T) onNodeClick;
 
-  Point position;
+  Tuple position;
 
   void onClick() {
     if (onNodeClick != null) onNodeClick(this, data);

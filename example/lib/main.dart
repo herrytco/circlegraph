@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:circlegraph_example/color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:circlegraph/circlegraph.dart';
 
@@ -9,30 +12,42 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Circlegraph Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: CircleGraphDemo(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
+class CircleGraphDemo extends StatefulWidget {
+  CircleGraphDemo({Key key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _CircleGraphDemoState createState() => _CircleGraphDemoState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int numberOfChildren = 5;
+class _CircleGraphDemoState extends State<CircleGraphDemo> {
+  int numberOfChildren = 0;
 
+  ///
+  /// increase the number of child-nodes in the graph by 1
+  ///
   void onAdd() {
     setState(() {
-      numberOfChildren += 1;
+      numberOfChildren++;
     });
+  }
+
+  ///
+  /// decrease the number of child-nodes in the graph by 1
+  ///
+  void onRemove() {
+    if (numberOfChildren > 0)
+      setState(() {
+        numberOfChildren--;
+      });
   }
 
   ///
@@ -41,13 +56,14 @@ class _MyHomePageState extends State<MyHomePage> {
   ///
   TreeNodeData _nodeWithIndex(int i) {
     return TreeNodeData<int>(
-        child: Text(
-          "child $i",
-          style: TextStyle(color: color3),
-        ),
-        data: i,
-        onNodeClick: _onNodeClick,
-        color: color2);
+      child: Text(
+        "child $i",
+        style: TextStyle(color: ColorPicker.color3),
+      ),
+      data: i,
+      onNodeClick: _onNodeClick,
+      backgroundColor: ColorPicker.color2,
+    );
   }
 
   ///
@@ -61,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
         borderRadius: BorderRadius.all(
           Radius.circular(10),
         ),
-        color: color4,
+        color: ColorPicker.color4,
       ),
       child: Text(
         "Hovering over node $data",
@@ -76,39 +92,89 @@ class _MyHomePageState extends State<MyHomePage> {
     print("clicked on node $data");
   }
 
-  Color get color1 => Color.fromRGBO(154, 212, 214, 1); // powder blue
-  Color get color2 => Color.fromRGBO(139, 30, 63, 1); // claret (red-ish)
-  Color get color3 =>
-      Color.fromRGBO(240, 201, 135, 1); // gold crayola (yellow-ish)
-  Color get color4 => Color.fromRGBO(71, 170, 174, 1); // verdigris
-  Color get color5 => Color.fromRGBO(16, 37, 66, 1); // oxford blue
+  ///
+  /// creates a tree with [numberOfChildren] nodes in the circle and one in the
+  /// middle. 
+  /// 
+  CircleTree constructTree(
+    int numberOfChildren, {
+    Color color = Colors.blue,
+    double radius = 50,
+  }) {
+    return CircleTree(
+      root: _nodeWithIndex(0),
+      radius: radius,
+      children: [
+        for (int i = 0; i < numberOfChildren; i++) _nodeWithIndex(i + 1),
+      ],
+      tooltipBuilder: buildTooltip,
+      circlify: true,
+      backgroundColor: color,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.add,
-          color: color3,
-        ),
-        onPressed: onAdd,
-        backgroundColor: color2,
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            child: Icon(
+              Icons.remove,
+              color: ColorPicker.color3,
+            ),
+            onPressed: onRemove,
+            backgroundColor: ColorPicker.color2,
+          ),
+          SizedBox(width: 8),
+          FloatingActionButton(
+            child: Icon(
+              Icons.add,
+              color: ColorPicker.color3,
+            ),
+            onPressed: onAdd,
+            backgroundColor: ColorPicker.color2,
+          ),
+        ],
       ),
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.all(100),
-          decoration: BoxDecoration(
-            color: color1,
-            shape: BoxShape.circle,
-          ),
-          child: CircleTree(
-            root: _nodeWithIndex(0),
-            radius: 50,
-            children: [
-              for (int i = 0; i < numberOfChildren; i++) _nodeWithIndex(i + 1),
-            ],
-            tooltipBuilder: buildTooltip,
-          ),
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: BubbleGraph(
+                [
+                  constructTree(
+                    numberOfChildren,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren + 1,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren + 2,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren,
+                    color: ColorPicker.color5,
+                  ),
+                ],
+                backgroundColor: ColorPicker.color1,
+                padding: EdgeInsets.all(16),
+              ),
+            ),
+          ],
         ),
       ),
     );

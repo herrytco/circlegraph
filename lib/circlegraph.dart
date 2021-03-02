@@ -1,25 +1,142 @@
 library circlegraph;
 
-export 'package:circlegraph/tree_node_data.dart';
+export 'package:circlegraph/circle/tree_node_data.dart';
+export 'package:circlegraph/bubble/bubblegraph.dart';
 
-import 'package:circlegraph/graph_tooltip.dart';
-import 'package:circlegraph/tree_node_data.dart';
-import 'package:circlegraph/tree_node_view.dart';
-import 'package:circlegraph/tree_painter.dart';
+import 'package:circlegraph/circle/graph_tooltip.dart';
+import 'package:circlegraph/tuple.dart';
+import 'package:circlegraph/circle/tree_node_data.dart';
+import 'package:circlegraph/circle/tree_node_view.dart';
+import 'package:circlegraph/circle/tree_painter.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:vector_math/vector_math.dart' as vm;
 
+///
+/// A tree with one node in the center and a number of nodes placed around it
+/// 
 class CircleTree extends StatefulWidget {
+  ///
+  /// Central node, has a connection to each node specified in children
+  /// 
   final TreeNodeData root;
+
+  ///
+  /// Nodes placed around the central rootnode
+  /// 
   final List<TreeNodeData> children;
 
+  ///
+  /// distance between root and child nodes
+  /// 
   final double radius;
+
+  ///
+  /// background color of the graph including padding
+  /// 
   final Color backgroundColor;
+
+  ///
+  /// color of the lines between the nodes
+  /// 
   final Color edgeColor;
 
+  ///
+  /// space between the graph and the edge of the containing box
+  /// 
   final EdgeInsets padding;
 
+  ///
+  /// should the graph placed inside of an actual circle?
+  /// 
+  final bool circlify;
+
+  ///
+  /// dimensions of the child nodes. These are the same for all child nodes
+  /// in the graph
+  ///
+  Tuple get nodeDimensions {
+    if (children.length > 0)
+      return Tuple(children.first.width, children.first.height);
+
+    return null;
+  }
+
+  ///
+  /// dimensions of the root node.
+  ///
+  Tuple get rootDimensions {
+    return Tuple(root.width, root.height);
+  }
+
+  ///
+  /// Larger side of the Contaienr which contains the graph. Padding is not included.
+  ///
+  double get sizeWithoutPadding {
+    switch (children.length) {
+      case 0:
+        return rootDimensions.largestElement;
+      case 1:
+        return max(
+          rootDimensions.x + radius + nodeDimensions.x,
+          rootDimensions.y,
+        );
+        break;
+      default:
+        return rootDimensions.largestElement +
+            2 * radius +
+            2 * nodeDimensions.largestElement;
+    }
+  }
+
+  ///
+  /// Larger side of the Container which contains the graph, Padding included.
+  ///
+  double get sizeWithPadding {
+    return sizeWithoutPadding +
+        max(
+          padding.top + padding.bottom,
+          padding.left + padding.right,
+        );
+  }
+
+  ///
+  /// If the graph is circlified, the effective size grows by sqrt(2), the value
+  /// is retrieved via this getter.
+  ///
+  double get circleSizeWithPadding {
+    return sizeWithPadding * sqrt(2);
+  }
+
+  ///
+  /// If the graph is circlified, the effective size grows by sqrt(2), the value
+  /// is retrieved via this getter.
+  ///
+  double get circleSizeWithoutPadding {
+    return sizeWithoutPadding * sqrt(2);
+  }
+
+  ///
+  /// Height of the box which contains the graph. Padding is included.
+  ///
+  double get height {
+    double yPadding = padding.top + padding.bottom;
+
+    return yPadding + sizeWithoutPadding;
+  }
+
+  ///
+  /// Width of the box which contains the graph. Padding is included.
+  ///
+  double get width {
+    double xPadding = padding.left + padding.right;
+
+    return xPadding + sizeWithoutPadding;
+  }
+
+  ///
+  /// builds the tooltip widget at [node]
+  /// 
   final Widget Function(TreeNodeData node, int data) tooltipBuilder;
 
   CircleTree({
@@ -31,7 +148,19 @@ class CircleTree extends StatefulWidget {
     this.edgeColor = const Color.fromRGBO(139, 30, 63, 1), // claret (red-ish),
     this.padding = EdgeInsets.zero,
     this.tooltipBuilder,
+    this.circlify = false,
   }) {
+    double lastNodeWidth = -1, lastNodeHeight = -1;
+    for (TreeNodeData node in children) {
+      if (lastNodeWidth == -1) {
+        lastNodeWidth = node.width;
+        lastNodeHeight = node.height;
+      } else {
+        if (lastNodeWidth != node.width || lastNodeHeight != node.height)
+          throw Exception("All nodes must have the same size!");
+      }
+    }
+
     // add an edge from root to each child
     for (TreeNodeData child in children)
       root.addEdgeTo(
@@ -45,17 +174,27 @@ class CircleTree extends StatefulWidget {
 }
 
 class _CircleTreeState extends State<CircleTree> {
-  double _width;
-  double _height;
-
-  double _nodeWidth;
-  double _nodeHeight;
-
+  ///
+  /// Realized root node (in the center of the graph). Contains final x and y
+  /// coordinates.
+  ///
   TreeNodeView _root;
+
+  ///
+  /// Realized child nodes (on the edge of the graph). Contains final x and y
+  /// coordinates.
+  ///
   List<TreeNodeView> _realizedNodes = [];
 
+  ///
+  /// If the cursor hovers over a node in the graph (including the root) this
+  /// value will be set.
+  ///
   TreeNodeData _currentlyHoveredNode;
 
+  ///
+  /// Getter for the currently hovered node.
+  ///
   TreeNodeData getCurrentlyHoveredNode() => _currentlyHoveredNode;
 
   ///
@@ -94,52 +233,6 @@ class _CircleTreeState extends State<CircleTree> {
   }
 
   ///
-  /// calculate the size of the container containing the graph. it uses the
-  /// width of root and child-nodes as well as the radius the circle should have
-  ///
-  void _calcTreeWidgetSize() {
-    double lastNodeHeight = -1, lastNodeWidth = -1;
-
-    for (TreeNodeData node in widget.children) {
-      if (lastNodeWidth == -1) {
-        lastNodeWidth = node.width;
-        lastNodeHeight = node.height;
-      } else {
-        if (lastNodeWidth != node.width || lastNodeHeight != node.height)
-          throw Exception("All nodes must have the same size!");
-      }
-    }
-
-    switch (widget.children.length) {
-      case 0:
-        _width = widget.root.width;
-        _height = widget.root.height;
-        break;
-      case 1:
-        _width = widget.root.width + widget.radius + lastNodeWidth;
-        _height = widget.root.height;
-        break;
-      case 2:
-        _width = widget.root.width +
-            2 * widget.radius +
-            2 * max(lastNodeWidth, lastNodeWidth);
-        _height = widget.root.height;
-        break;
-      default:
-        _width = widget.root.width +
-            2 * widget.radius +
-            2 * max(lastNodeWidth, lastNodeWidth);
-        _height = widget.root.height +
-            2 * widget.radius +
-            2 * max(lastNodeWidth, lastNodeWidth);
-        break;
-    }
-
-    _nodeWidth = lastNodeWidth;
-    _nodeHeight = lastNodeHeight;
-  }
-
-  ///
   /// calculate the effective position each node has in the coordinate system
   ///
   void _calcNodePositions() {
@@ -148,7 +241,7 @@ class _CircleTreeState extends State<CircleTree> {
         _root = TreeNodeView(
           data: widget.root,
           x: widget.root.width / 2,
-          y: widget.root.height / 2,
+          y: widget.sizeWithoutPadding / 2,
           containingTree: widget,
           onHover: _reportMouseOver,
         );
@@ -158,15 +251,15 @@ class _CircleTreeState extends State<CircleTree> {
         _root = TreeNodeView(
           data: widget.root,
           x: widget.root.width / 2,
-          y: widget.root.height / 2,
+          y: widget.sizeWithoutPadding / 2,
           containingTree: widget,
           onHover: _reportMouseOver,
         );
 
         TreeNodeView childRealization = TreeNodeView(
           data: widget.children[0],
-          x: _width - _nodeWidth / 2,
-          y: _nodeHeight / 2,
+          x: widget.sizeWithoutPadding - widget.nodeDimensions.x / 2,
+          y: widget.sizeWithoutPadding / 2,
           containingTree: widget,
           onHover: _reportMouseOver,
         );
@@ -175,7 +268,8 @@ class _CircleTreeState extends State<CircleTree> {
         break;
       default:
         double angleSteps = 360 / widget.children.length;
-        double centerX = _width / 2, centerY = _height / 2;
+        double centerX = widget.sizeWithoutPadding / 2,
+            centerY = widget.sizeWithoutPadding / 2;
 
         _root = TreeNodeView(
           data: widget.root,
@@ -229,47 +323,58 @@ class _CircleTreeState extends State<CircleTree> {
   @override
   Widget build(BuildContext context) {
     _resetData();
-    _calcTreeWidgetSize();
     _calcNodePositions();
 
-    return Container(
-      width: _width + widget.padding.left + widget.padding.right,
-      height: _height + widget.padding.top + widget.padding.bottom,
-      color: widget.backgroundColor,
-      child: Align(
-        alignment: Alignment.center,
-        child: Container(
-          height: _height,
-          width: _width,
-          color: widget.backgroundColor,
-          child: Stack(
-            children: [
-              Listener(
-                onPointerHover: (event) => _resetMouseOver(),
-                child: Container(
-                  constraints: BoxConstraints.expand(),
-                  child: CustomPaint(
-                    painter: TreePainter(tree: widget),
-                  ),
+    Widget graph = Align(
+      alignment: Alignment.center,
+      child: Container(
+        height: widget.sizeWithoutPadding,
+        width: widget.sizeWithoutPadding,
+        color: widget.backgroundColor,
+        child: Stack(
+          children: [
+            Listener(
+              onPointerHover: (event) => _resetMouseOver(),
+              child: Container(
+                constraints: BoxConstraints.expand(),
+                child: CustomPaint(
+                  painter: TreePainter(tree: widget),
                 ),
               ),
-              _root,
-              for (TreeNodeView view in _realizedNodes) view,
-              _currentlyHoveredNode != null
-                  ? GraphTooltip(
-                      getCurrentlyHoveredNode,
-                      widget.tooltipBuilder != null
-                          ? widget.tooltipBuilder(
-                              _currentlyHoveredNode, _currentlyHoveredNode.data)
-                          : SizedBox(),
-                      _width,
-                      _height,
-                    )
-                  : SizedBox(),
-            ],
-          ),
+            ),
+            _root,
+            for (TreeNodeView view in _realizedNodes) view,
+            _currentlyHoveredNode != null
+                ? GraphTooltip(
+                    getCurrentlyHoveredNode,
+                    widget.tooltipBuilder != null
+                        ? widget.tooltipBuilder(
+                            _currentlyHoveredNode, _currentlyHoveredNode.data)
+                        : SizedBox(),
+                    widget.sizeWithoutPadding,
+                    widget.sizeWithoutPadding,
+                  )
+                : SizedBox(),
+          ],
         ),
       ),
     );
+
+    return widget.circlify
+        ? Container(
+            width: widget.circleSizeWithPadding,
+            height: widget.circleSizeWithPadding,
+            decoration: BoxDecoration(
+              color: widget.backgroundColor,
+              shape: BoxShape.circle,
+            ),
+            child: graph,
+          )
+        : Container(
+            width: widget.sizeWithPadding,
+            height: widget.sizeWithPadding,
+            color: widget.backgroundColor,
+            child: graph,
+          );
   }
 }

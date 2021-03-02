@@ -1,6 +1,6 @@
-import 'package:circlegraph/point.dart';
+import 'package:circlegraph/tuple.dart';
 import 'package:circlegraph/circlegraph.dart';
-import 'package:circlegraph/tree_node_data.dart';
+import 'package:circlegraph/circle/tree_node_data.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,7 @@ class TreeNodeView extends StatefulWidget {
       @required this.y,
       @required this.containingTree,
       this.onHover}) {
-    data.position = Point(x, y);
+    data.position = Tuple(x, y);
   }
 
   @override

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:circlegraph/tree_node_data.dart';
+import 'package:circlegraph/circle/tree_node_data.dart';
 
 class TreeEdge {
   final TreeNodeData fromNode;
