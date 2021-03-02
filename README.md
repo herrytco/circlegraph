@@ -9,6 +9,7 @@ A Flutter plugin for creating graphs where a single node is in the center and a 
 - An onClick callback can be provided to react when the user clicks on a node;
 - A tooltip builder can be provided to show more information about elements in the graph when the user hovers over a node;
 - Fully customize the graphs appearance by using custom widgets for nodes and providing custom colors to the widget;
+- Place multiple CircleGraphs inside one larger graph using BubbleGraph
 
 ## Usage
 
@@ -20,4 +21,6 @@ A simple graph, put into a circle-shaped Container could look something like thi
 
 ![alt text](https://raw.githubusercontent.com/herrytco/circlegraph/main/.assets/sample_graph_image.png "Example of a graph created with the Circlegraph package")
 
-To achieve a similar result, have a look at the [Example](https://pub.dev/packages/circlegraph/example) section. 
+To achieve a similar result, have a look at the [Example](https://pub.dev/packages/circlegraph/example) section.
+
+![alt text](https://raw.githubusercontent.com/herrytco/circlegraph/main/.assets/sample_bubble_graph.png.png "Example of a graph created with the Circlegraph package")
