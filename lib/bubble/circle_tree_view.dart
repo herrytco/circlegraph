@@ -1,4 +1,5 @@
 import 'package:circlegraph/circlegraph.dart';
+import 'package:circlegraph/tuple.dart';
 import 'package:flutter/material.dart';
 
 class CircleTreeView extends StatelessWidget {
@@ -16,4 +17,12 @@ class CircleTreeView extends StatelessWidget {
       child: tree,
     );
   }
+
+  Tuple get origin => Tuple(x, y);
+  Tuple get center => Tuple(
+        x + tree.circleSizeWithPadding / 2,
+        y + tree.circleSizeWithPadding / 2,
+      );
+  
+
 }

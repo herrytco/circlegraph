@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:circlegraph_example/color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:circlegraph/circlegraph.dart';
 
@@ -53,13 +56,14 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
   ///
   TreeNodeData _nodeWithIndex(int i) {
     return TreeNodeData<int>(
-        child: Text(
-          "child $i",
-          style: TextStyle(color: color3),
-        ),
-        data: i,
-        onNodeClick: _onNodeClick,
-        color: color2);
+      child: Text(
+        "child $i",
+        style: TextStyle(color: ColorPicker.color3),
+      ),
+      data: i,
+      onNodeClick: _onNodeClick,
+      color: ColorPicker.color2,
+    );
   }
 
   ///
@@ -73,7 +77,7 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
         borderRadius: BorderRadius.all(
           Radius.circular(10),
         ),
-        color: color4,
+        color: ColorPicker.color4,
       ),
       child: Text(
         "Hovering over node $data",
@@ -89,34 +93,17 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
   }
 
   ///
-  /// powder blue
-  ///
-  Color get color1 => Color.fromRGBO(154, 212, 214, 1);
-
-  ///
-  /// claret (red-ish)
-  ///
-  Color get color2 => Color.fromRGBO(139, 30, 63, 1);
-
-  ///
-  /// gold crayola (yellow-ish)
-  ///
-  Color get color3 => Color.fromRGBO(240, 201, 135, 1);
-
-  ///
-  /// verdigris
-  ///
-  Color get color4 => Color.fromRGBO(71, 170, 174, 1);
-
-  ///
-  /// oxford blue
-  ///
-  Color get color5 => Color.fromRGBO(16, 37, 66, 1);
-
-  CircleTree constructTree(int numberOfChildren, {color = Colors.blue}) {
+  /// creates a tree with [numberOfChildren] nodes in the circle and one in the
+  /// middle. 
+  /// 
+  CircleTree constructTree(
+    int numberOfChildren, {
+    Color color = Colors.blue,
+    double radius = 50,
+  }) {
     return CircleTree(
       root: _nodeWithIndex(0),
-      radius: 50,
+      radius: radius,
       children: [
         for (int i = 0; i < numberOfChildren; i++) _nodeWithIndex(i + 1),
       ],
@@ -135,45 +122,60 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
           FloatingActionButton(
             child: Icon(
               Icons.remove,
-              color: color3,
+              color: ColorPicker.color3,
             ),
             onPressed: onRemove,
-            backgroundColor: color2,
+            backgroundColor: ColorPicker.color2,
           ),
           SizedBox(width: 8),
           FloatingActionButton(
             child: Icon(
               Icons.add,
-              color: color3,
+              color: ColorPicker.color3,
             ),
             onPressed: onAdd,
-            backgroundColor: color2,
+            backgroundColor: ColorPicker.color2,
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.center,
-            child: BubbleGraph(
-              [
-                constructTree(numberOfChildren+1),
-                constructTree(numberOfChildren),
-                constructTree(numberOfChildren, color: Colors.amber),
-                constructTree(numberOfChildren+3, color: Colors.pink),
-                constructTree(numberOfChildren+6, color: Colors.lime),
-                constructTree(numberOfChildren, color: Colors.indigo),
-                constructTree(numberOfChildren, color: Colors.orange),
-                constructTree(numberOfChildren, color: Colors.teal),
-                constructTree(numberOfChildren, color: Colors.tealAccent),
-              ],
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: BubbleGraph(
+                [
+                  constructTree(
+                    numberOfChildren,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren + 1,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren + 2,
+                    color: ColorPicker.color5,
+                  ),
+                  constructTree(
+                    numberOfChildren,
+                    color: ColorPicker.color5,
+                  ),
+                ],
+                backgroundColor: ColorPicker.color1,
+                padding: EdgeInsets.all(16),
+              ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Text("$numberOfChildren children per circle"),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

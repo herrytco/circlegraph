@@ -292,7 +292,6 @@ class _CircleTreeState extends State<CircleTree> {
   @override
   Widget build(BuildContext context) {
     _resetData();
-
     _calcNodePositions();
 
     Widget graph = Align(
@@ -334,11 +333,11 @@ class _CircleTreeState extends State<CircleTree> {
         ? Container(
             width: widget.circleSizeWithPadding,
             height: widget.circleSizeWithPadding,
-            child: graph,
             decoration: BoxDecoration(
               color: widget.backgroundColor,
               shape: BoxShape.circle,
             ),
+            child: graph,
           )
         : Container(
             width: widget.sizeWithPadding,

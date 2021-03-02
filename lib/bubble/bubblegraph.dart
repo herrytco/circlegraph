@@ -3,17 +3,23 @@ import 'dart:math';
 import 'package:circlegraph/bubble/bubble_edge.dart';
 import 'package:circlegraph/bubble/circle_tree_view.dart';
 import 'package:circlegraph/circlegraph.dart';
+import 'package:circlegraph/data_stack.dart';
 import 'package:circlegraph/tuple.dart';
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math.dart' as vm;
 
 class BubbleGraph extends StatefulWidget {
   @override
   _BubbleGraphState createState() => _BubbleGraphState();
 
   final List<CircleTree> circleGraphs;
+  final Color backgroundColor;
+  final EdgeInsets padding;
 
-  BubbleGraph(this.circleGraphs) {
+  BubbleGraph(
+    this.circleGraphs, {
+    this.backgroundColor,
+    this.padding = EdgeInsets.zero,
+  }) {
     if (circleGraphs.length < 1)
       throw Exception(
           "BubbleGraph needs at least one CircleGraph! 0 were given.");
@@ -21,10 +27,24 @@ class BubbleGraph extends StatefulWidget {
 }
 
 class _BubbleGraphState extends State<BubbleGraph> {
+  ///
+  /// already placed circles, holding their x/y positions
+  ///
   List<CircleTreeView> _realizedCircles = [];
-  List<BubbleEdge> _workingEdges = [];
 
+  ///
+  /// edges beneath 2 neighbour cirles where a new circle could be placed
+  ///
+  DataStack<BubbleEdge> _workingEdges = DataStack();
+
+  ///
+  /// width of the box containing the graph
+  ///
   double _width = 0;
+
+  ///
+  /// height of the box containing the graph
+  ///
   double _height = 0;
 
   ///
@@ -41,10 +61,11 @@ class _BubbleGraphState extends State<BubbleGraph> {
     );
 
     _realizedCircles.add(c1);
-    _width += first.circleSizeWithPadding;
-    _height += first.circleSizeWithPadding;
 
-    if (widget.circleGraphs.length == 1) return;
+    if (widget.circleGraphs.length == 1) {
+      _recalculateDimensions();
+      return;
+    }
 
     // second, if existing
     CircleTree second = widget.circleGraphs[1];
@@ -66,21 +87,59 @@ class _BubbleGraphState extends State<BubbleGraph> {
 
     _realizedCircles.add(c2);
 
-    _width += second.circleSizeWithPadding;
-    _height = max(first.circleSizeWithPadding, second.circleSizeWithPadding);
-
-    _workingEdges.add(BubbleEdge(c1, c2));
+    _workingEdges.push(BubbleEdge(c1, c2));
+    _recalculateDimensions();
   }
 
+  ///
+  /// move the whole graph [x] to the right [y] downwards
+  ///
   void _offsetConstruction(double x, double y) {
     for (int i = 0; i < _realizedCircles.length; i++) {
       CircleTreeView view = _realizedCircles[i];
 
-      _realizedCircles[i] = CircleTreeView(
+      CircleTreeView viewReplacement = CircleTreeView(
         tree: view.tree,
         x: view.x + x,
         y: view.y + y,
       );
+
+      _realizedCircles[i] = viewReplacement;
+
+      // update edges with new data
+      for (BubbleEdge edge in _workingEdges.data)
+        edge.replaceCircleTreeView(viewReplacement);
+    }
+  }
+
+  ///
+  /// checks if the origin of [view] is outside of the visible area (negative)
+  /// and offset the whole graph if so
+  ///
+  void _updateSizeForNewGraphView(CircleTreeView view) {
+    // top-left corner of circleGraph
+    Tuple rootGraph = view.origin;
+
+    // check if the point is too far left/up and if so, shift the whole
+    // BubbleGraph down/right
+    if (rootGraph.x < 0 || rootGraph.y < 0)
+      _offsetConstruction(max(0, -rootGraph.x), max(0, -rootGraph.y));
+  }
+
+  ///
+  /// resets width/height of the box containing all circles and iterates through
+  /// [_realizedCircle] to find the maximum dimensions
+  ///
+  void _recalculateDimensions() {
+    _height = 0;
+    _width = 0;
+
+    for (CircleTreeView treeView in _realizedCircles) {
+      Tuple bottomRight = treeView.origin
+        ..addScalarTo(treeView.tree.circleSizeWithPadding);
+
+      if (bottomRight.x > _width) _width = bottomRight.x;
+      if (bottomRight.y > _height) _height = bottomRight.y;
     }
   }
 
@@ -97,13 +156,10 @@ class _BubbleGraphState extends State<BubbleGraph> {
 
     for (int i = 2; i < widget.circleGraphs.length; i++) {
       CircleTree graph = widget.circleGraphs[i];
-      BubbleEdge edge = _workingEdges.first;
-      _workingEdges.removeAt(0);
+      BubbleEdge edge = _workingEdges.pop();
 
       CircleTreeView aPoint = edge.c1;
       CircleTreeView bPoint = edge.c2;
-
-      int idxA = widget.circleGraphs.indexOf(aPoint.tree);
 
       Tuple aa = Tuple(
         aPoint.x + aPoint.tree.circleSizeWithPadding / 2,
@@ -151,18 +207,49 @@ class _BubbleGraphState extends State<BubbleGraph> {
         y: rootGraphNew.y,
       );
 
-      _realizedCircles.add(graphView);
-      _workingEdges.add(BubbleEdge(aPoint, graphView));
+      // check for overlap with existing circles
+      bool circleCollidesWithAnotherCircle = false;
 
-      // check if the point is too far left/up
-      if (rootGraphNew.x < 0 || rootGraphNew.y < 0) {
-        _offsetConstruction(max(0, -rootGraphNew.x), max(0, -rootGraphNew.y));
-        _workingEdges.clear();
-        _workingEdges.add(
-          BubbleEdge(_realizedCircles[idxA], _realizedCircles.last),
+      for (CircleTreeView existingCircle in _realizedCircles) {
+        double radiusOther =
+            (existingCircle.tree.circleSizeWithPadding / 2) * .98;
+        Tuple centerOther = Tuple(
+          existingCircle.x + radiusOther,
+          existingCircle.y + radiusOther,
         );
+
+        double radiusThis = (graph.circleSizeWithPadding / 2) * .98;
+        Tuple centerThis = Tuple(
+          graphView.x + radiusThis,
+          graphView.y + radiusThis,
+        );
+
+        Tuple vectorBetweenCenters = Tuple(
+          centerOther.x - centerThis.x,
+          centerOther.y - centerThis.y,
+        );
+
+        if (max(radiusThis, radiusOther) - min(radiusThis, radiusOther) <
+                vectorBetweenCenters.magnitude &&
+            vectorBetweenCenters.magnitude < radiusThis + radiusOther) {
+          circleCollidesWithAnotherCircle = true;
+          break;
+        }
       }
+
+      if (circleCollidesWithAnotherCircle) {
+        i--;
+        continue;
+      }
+
+      _realizedCircles.add(graphView);
+      _workingEdges.push(BubbleEdge(graphView, bPoint));
+      _workingEdges.push(BubbleEdge(aPoint, graphView));
+
+      _updateSizeForNewGraphView(graphView);
     }
+
+    _recalculateDimensions();
   }
 
   @override
@@ -170,11 +257,19 @@ class _BubbleGraphState extends State<BubbleGraph> {
     _placeCircles();
 
     return Container(
-      width: _width + 1000,
-      height: _height + 1000,
-      color: Colors.red,
-      child: Stack(
-        children: _realizedCircles,
+      color: widget.backgroundColor,
+      width: _width + widget.padding.left + widget.padding.right,
+      height: _height + widget.padding.top + widget.padding.bottom,
+      child: Align(
+        alignment: Alignment.center,
+        child: Container(
+          width: _width,
+          height: _height,
+          color: widget.backgroundColor,
+          child: Stack(
+            children: _realizedCircles,
+          ),
+        ),
       ),
     );
   }
