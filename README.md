@@ -23,4 +23,4 @@ A simple graph, put into a circle-shaped Container could look something like thi
 
 To achieve a similar result, have a look at the [Example](https://pub.dev/packages/circlegraph/example) section.
 
-![alt text](https://raw.githubusercontent.com/herrytco/circlegraph/main/.assets/sample_bubble_graph.png.png "Example of a graph created with the Circlegraph package")
+![alt text](https://raw.githubusercontent.com/herrytco/circlegraph/main/.assets/sample_bubble_graph.png "Example of a graph created with the Circlegraph package")
