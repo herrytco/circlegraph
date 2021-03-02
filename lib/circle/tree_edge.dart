@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:circlegraph/circle/tree_node_data.dart';
 
+///
+/// Represents a connection between two nodes in a CircleGraph
+/// 
 class TreeEdge {
   final TreeNodeData fromNode;
   final TreeNodeData toNode;

@@ -3,10 +3,29 @@ import 'package:flutter/material.dart';
 
 enum DrawMode { TOPRIGHT, TOPLEFT, BOTTOMRIGHT, BOTTOMLEFT }
 
+///
+/// Tooltip appearing when the mouse hovers over a node
+///
 class GraphTooltip<T> extends StatelessWidget {
+  ///
+  /// The node the mouse currently hovers over can be retrieved via this
+  /// function
+  ///
   final TreeNodeData Function() parent;
+
+  ///
+  /// Widget to draw the node
+  ///
   final Widget tooltip;
+
+  ///
+  ///  width of the box the graph is drawn without padding.
+  ///
   final double treeBoxWidth;
+
+  ///
+  /// height of the box the graph is drawn without padding.
+  ///
   final double treeBoxHeight;
 
   GraphTooltip(

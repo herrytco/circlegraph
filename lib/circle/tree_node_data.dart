@@ -2,20 +2,55 @@ import 'package:circlegraph/tuple.dart';
 import 'package:circlegraph/circle/tree_edge.dart';
 import 'package:flutter/material.dart';
 
+///
+/// Represents the raw data of a node in a CircleGraph
+/// 
 class TreeNodeData<T> {
+  ///
+  /// height of the node
+  /// 
   final double height;
+
+  ///
+  /// width of the node
+  ///
   final double width;
+
+  ///
+  /// widget to be displayed in the node
+  /// 
   final Widget child;
 
-  final Color color;
+  ///
+  /// background color of the node
+  /// 
+  final Color backgroundColor;
 
+  ///
+  /// other nodes connected to this one
+  /// 
   final List<TreeEdge> connectedNodes = [];
+
+  ///
+  /// data stored in the node. it is not displayed per default but can be used
+  /// in onClick callbacks.
+  /// 
   final T data;
 
+  ///
+  /// called when the node is clicked on. 
+  /// 
   final Function(TreeNodeData, T) onNodeClick;
 
+  ///
+  /// position of the node in the graph
+  /// 
   Tuple position;
 
+  ///
+  /// called when a click/tap on the node was registered. calls [onNodeClick] if
+  /// it is not null
+  /// 
   void onClick() {
     if (onNodeClick != null) onNodeClick(this, data);
   }
@@ -48,7 +83,7 @@ class TreeNodeData<T> {
   TreeNodeData({
     this.height = 50,
     this.width = 100,
-    this.color = Colors.blue,
+    this.backgroundColor = Colors.blue,
     this.onNodeClick,
     @required this.child,
     @required this.data,

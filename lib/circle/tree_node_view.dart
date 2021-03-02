@@ -4,13 +4,36 @@ import 'package:circlegraph/circle/tree_node_data.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+///
+/// Realized node in a CircleGraph (holds a position)
+/// 
 class TreeNodeView extends StatefulWidget {
+
+  ///
+  /// node data
+  /// 
   final TreeNodeData data;
+
+  ///
+  /// tree the node is drawn in. used to deliver callbacks
+  /// 
   final CircleTree containingTree;
 
+  ///
+  /// space between the left edge of the node and the border of the containing
+  /// box without padding
+  /// 
   final double x;
+
+  ///
+  /// space between the top edge of the node and the border of the containing
+  /// box without padding
+  /// 
   final double y;
 
+  ///
+  /// callback, fired when the cursor hovers over the node
+  /// 
   final Function(TreeNodeData) onHover;
 
   TreeNodeView(
@@ -58,7 +81,7 @@ class _TreeNodeViewState extends State<TreeNodeView> {
             alignment: Alignment.center,
             height: widget.data.height,
             width: widget.data.width,
-            color: widget.data.color,
+            color: widget.data.backgroundColor,
             child: widget.data.child,
           ),
         ),

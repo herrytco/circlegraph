@@ -3,7 +3,13 @@ import 'package:circlegraph/circle/tree_edge.dart';
 import 'package:circlegraph/circle/tree_node_data.dart';
 import 'package:flutter/material.dart';
 
+///
+/// Paints the edges between nodes in the CircleGraph
+///
 class TreePainter extends CustomPainter {
+  ///
+  /// tree, which contains drawing-information (nodes, edges, ...)
+  ///
   final CircleTree tree;
 
   TreePainter({this.tree});
