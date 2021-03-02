@@ -15,7 +15,7 @@ import 'package:vector_math/vector_math.dart' as vm;
 ///
 /// A tree with one node in the center and a number of nodes placed around it
 /// 
-class CircleTree extends StatefulWidget {
+class CircleGraph extends StatefulWidget {
   ///
   /// Central node, has a connection to each node specified in children
   /// 
@@ -139,7 +139,7 @@ class CircleTree extends StatefulWidget {
   /// 
   final Widget Function(TreeNodeData node, int data) tooltipBuilder;
 
-  CircleTree({
+  CircleGraph({
     @required this.root,
     this.children = const [],
     this.radius = 200,
@@ -170,10 +170,10 @@ class CircleTree extends StatefulWidget {
   }
 
   @override
-  _CircleTreeState createState() => _CircleTreeState();
+  _CircleGraphState createState() => _CircleGraphState();
 }
 
-class _CircleTreeState extends State<CircleTree> {
+class _CircleGraphState extends State<CircleGraph> {
   ///
   /// Realized root node (in the center of the graph). Contains final x and y
   /// coordinates.

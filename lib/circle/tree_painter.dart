@@ -10,7 +10,7 @@ class TreePainter extends CustomPainter {
   ///
   /// tree, which contains drawing-information (nodes, edges, ...)
   ///
-  final CircleTree tree;
+  final CircleGraph tree;
 
   TreePainter({this.tree});
 

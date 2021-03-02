@@ -9,7 +9,7 @@ class CircleTreeView extends StatelessWidget {
   ///
   /// graph to draw
   ///
-  final CircleTree tree;
+  final CircleGraph tree;
 
   ///
   /// left space between the circle and the containing box

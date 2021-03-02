@@ -96,12 +96,12 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
   /// creates a tree with [numberOfChildren] nodes in the circle and one in the
   /// middle. 
   /// 
-  CircleTree constructTree(
+  CircleGraph constructTree(
     int numberOfChildren, {
     Color color = Colors.blue,
     double radius = 50,
   }) {
-    return CircleTree(
+    return CircleGraph(
       root: _nodeWithIndex(0),
       radius: radius,
       children: [

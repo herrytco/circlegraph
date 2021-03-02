@@ -17,7 +17,7 @@ class TreeNodeView extends StatefulWidget {
   ///
   /// tree the node is drawn in. used to deliver callbacks
   /// 
-  final CircleTree containingTree;
+  final CircleGraph containingTree;
 
   ///
   /// space between the left edge of the node and the border of the containing

@@ -17,7 +17,7 @@ class BubbleGraph extends StatefulWidget {
   ///
   /// graphs to draw
   ///
-  final List<CircleTree> circleGraphs;
+  final List<CircleGraph> circleGraphs;
 
   ///
   /// background color of the box containing the graph
@@ -71,7 +71,7 @@ class _BubbleGraphState extends State<BubbleGraph> {
   ///
   void _processInitialCircles() {
     // add the first circle manually
-    CircleTree first = widget.circleGraphs.first;
+    CircleGraph first = widget.circleGraphs.first;
 
     CircleTreeView c1 = CircleTreeView(
       tree: first,
@@ -87,7 +87,7 @@ class _BubbleGraphState extends State<BubbleGraph> {
     }
 
     // second, if existing
-    CircleTree second = widget.circleGraphs[1];
+    CircleGraph second = widget.circleGraphs[1];
 
     double r1 = first.circleSizeWithPadding / 2;
     double r2 = second.circleSizeWithPadding / 2;
@@ -174,7 +174,7 @@ class _BubbleGraphState extends State<BubbleGraph> {
     _processInitialCircles();
 
     for (int i = 2; i < widget.circleGraphs.length; i++) {
-      CircleTree graph = widget.circleGraphs[i];
+      CircleGraph graph = widget.circleGraphs[i];
       BubbleEdge edge = _workingEdges.pop();
 
       CircleTreeView aPoint = edge.c1;
