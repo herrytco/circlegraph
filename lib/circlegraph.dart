@@ -1,8 +1,10 @@
 library circlegraph;
 
 export 'package:circlegraph/circle/tree_node_data.dart';
+export 'package:circlegraph/circle/circle.dart';
 export 'package:circlegraph/bubble/bubblegraph.dart';
 
+import 'package:circlegraph/circle/circle.dart';
 import 'package:circlegraph/circle/graph_tooltip.dart';
 import 'package:circlegraph/tuple.dart';
 import 'package:circlegraph/circle/tree_node_data.dart';
@@ -14,41 +16,47 @@ import 'package:vector_math/vector_math.dart' as vm;
 
 ///
 /// A tree with one node in the center and a number of nodes placed around it
-/// 
+///
 class CircleGraph extends StatefulWidget {
   ///
   /// Central node, has a connection to each node specified in children
-  /// 
+  ///
   final TreeNodeData root;
 
   ///
   /// Nodes placed around the central rootnode
-  /// 
+  ///
   final List<TreeNodeData> children;
 
   ///
   /// distance between root and child nodes
-  /// 
-  final double radius;
+  ///
+  double get radius {
+    double maxRadius = 0;
+
+    for (Circle c in circleData) if (c.radius > maxRadius) maxRadius = c.radius;
+
+    return maxRadius;
+  }
 
   ///
   /// background color of the graph including padding
-  /// 
+  ///
   final Color backgroundColor;
 
   ///
   /// color of the lines between the nodes
-  /// 
+  ///
   final Color edgeColor;
 
   ///
   /// space between the graph and the edge of the containing box
-  /// 
+  ///
   final EdgeInsets padding;
 
   ///
   /// should the graph placed inside of an actual circle?
-  /// 
+  ///
   final bool circlify;
 
   ///
@@ -136,20 +144,27 @@ class CircleGraph extends StatefulWidget {
 
   ///
   /// builds the tooltip widget at [node]
-  /// 
+  ///
   final Widget Function(TreeNodeData node, int data) tooltipBuilder;
+
+  final List<Circle> circleData;
 
   CircleGraph({
     @required this.root,
     this.children = const [],
-    this.radius = 200,
+    double radius = 200,
     this.backgroundColor =
         const Color.fromRGBO(154, 212, 214, 1), // powder blue
     this.edgeColor = const Color.fromRGBO(139, 30, 63, 1), // claret (red-ish),
     this.padding = EdgeInsets.zero,
     this.tooltipBuilder,
     this.circlify = false,
-  }) {
+    circleLayout = const [],
+  }) : circleData = circleLayout.length == 0 ? [] : circleLayout {
+    if (circleData.length == 0 || circleData.last.radius != -1)
+      circleData.add(Circle(radius, -1));
+
+    // check if nodes are the same size
     double lastNodeWidth = -1, lastNodeHeight = -1;
     for (TreeNodeData node in children) {
       if (lastNodeWidth == -1) {
@@ -162,11 +177,12 @@ class CircleGraph extends StatefulWidget {
     }
 
     // add an edge from root to each child
-    for (TreeNodeData child in children)
+    for (TreeNodeData child in children) {
       root.addEdgeTo(
         child,
         edgeColor: edgeColor,
       );
+    }
   }
 
   @override
@@ -267,7 +283,6 @@ class _CircleGraphState extends State<CircleGraph> {
         _realizedNodes.add(childRealization);
         break;
       default:
-        double angleSteps = 360 / widget.children.length;
         double centerX = widget.sizeWithoutPadding / 2,
             centerY = widget.sizeWithoutPadding / 2;
 
@@ -279,41 +294,66 @@ class _CircleGraphState extends State<CircleGraph> {
           onHover: _reportMouseOver,
         );
 
-        for (int i = 0; i < widget.children.length; i++) {
-          TreeNodeData child = widget.children[i];
-          double angle = angleSteps * i;
+        int i = 0;
 
-          double nodeX =
-              centerX + widget.radius + _root.data.width / 2 + child.width / 2;
-          double nodeY = centerY;
+        for (Circle circle in widget.circleData) {
+          int nodesInCurrentCircle = 0;
 
-          // translate rotation origin to (0/0)
-          nodeX -= centerX;
-          nodeY -= centerY;
+          double angleSteps;
 
-          // perform rotation according to https://academo.org/demos/rotation-about-point/
-          double cosinus = cos(vm.radians(angle));
-          double sinus = sin(vm.radians(angle));
+          if (circle.nElements > 0)
+            angleSteps = 360 / circle.nElements;
+          else
+            angleSteps = 360 / (widget.children.length - i);
+          double angleOffset =
+              widget.circleData.indexOf(circle) % 2 == 0 ? 0 : angleSteps / 2;
 
-          double xPrime = nodeX * cosinus - nodeY * sinus;
-          double yPrime = nodeY * cosinus - nodeX * sinus;
+          while (nodesInCurrentCircle < circle.nElements ||
+              circle.nElements == -1) {
+            if (i == widget.children.length) break;
 
-          nodeX = xPrime;
-          nodeY = yPrime;
+            TreeNodeData child = widget.children[i];
+            double angle = angleSteps * nodesInCurrentCircle + angleOffset;
 
-          // translate origin back to (centerX/centerY)
-          nodeX += centerX;
-          nodeY += centerY;
+            double nodeX = centerX +
+                circle.radius +
+                _root.data.width / 2 +
+                child.width / 2;
+            double nodeY = centerY;
 
-          TreeNodeView childRealization = TreeNodeView(
-            data: child,
-            x: nodeX,
-            y: nodeY,
-            containingTree: widget,
-            onHover: _reportMouseOver,
-          );
+            // translate rotation origin to (0/0)
+            nodeX -= centerX;
+            nodeY -= centerY;
 
-          _realizedNodes.add(childRealization);
+            // perform rotation according to https://academo.org/demos/rotation-about-point/
+            double cosinus = cos(vm.radians(angle));
+            double sinus = sin(vm.radians(angle));
+
+            double xPrime = nodeX * cosinus - nodeY * sinus;
+            double yPrime = nodeY * cosinus - nodeX * sinus;
+
+            nodeX = xPrime;
+            nodeY = yPrime;
+
+            // translate origin back to (centerX/centerY)
+            nodeX += centerX;
+            nodeY += centerY;
+
+            TreeNodeView childRealization = TreeNodeView(
+              data: child,
+              x: nodeX,
+              y: nodeY,
+              containingTree: widget,
+              onHover: _reportMouseOver,
+            );
+
+            _realizedNodes.add(childRealization);
+
+            i++;
+            nodesInCurrentCircle++;
+
+            if (nodesInCurrentCircle == circle.nElements) break;
+          }
         }
 
         break;

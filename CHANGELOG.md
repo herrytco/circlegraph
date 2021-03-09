@@ -1,3 +1,7 @@
+## [0.0.6] - 09.03.2021
+
+Added possibility to have multiple layers of nodes in a Circlegraph.
+
 ## [0.0.5] - 02.03.2021
 
 Updated README file

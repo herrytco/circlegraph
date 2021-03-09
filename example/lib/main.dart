@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:circlegraph_example/color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:circlegraph/circlegraph.dart';
@@ -94,8 +92,8 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
 
   ///
   /// creates a tree with [numberOfChildren] nodes in the circle and one in the
-  /// middle. 
-  /// 
+  /// middle.
+  ///
   CircleGraph constructTree(
     int numberOfChildren, {
     Color color = Colors.blue,
@@ -162,13 +160,24 @@ class _CircleGraphDemoState extends State<CircleGraphDemo> {
                     color: ColorPicker.color5,
                   ),
                   constructTree(
-                    numberOfChildren + 2,
+                    numberOfChildren + 6,
                     color: ColorPicker.color5,
                   ),
-                  constructTree(
-                    numberOfChildren,
-                    color: ColorPicker.color5,
-                  ),
+                  CircleGraph(
+                    root: _nodeWithIndex(0),
+                    radius: 100,
+                    children: [
+                      for (int i = 0; i < numberOfChildren + 18; i++)
+                        _nodeWithIndex(i + 1),
+                    ],
+                    circleLayout: [
+                      Circle(100, 6),
+                      Circle(200, -1),
+                    ],
+                    tooltipBuilder: buildTooltip,
+                    circlify: true,
+                    backgroundColor: ColorPicker.color5,
+                  )
                 ],
                 backgroundColor: ColorPicker.color1,
                 padding: EdgeInsets.all(16),
